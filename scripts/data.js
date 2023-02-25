@@ -139,7 +139,6 @@ function colorRubikCube(vertex){
             
             // To check whether the face is the surface of the rubik cube
             if(vertex[index+axis] == -boudaryCoordi && vertex[index+axis+12] == -boudaryCoordi && vertex[index+axis+18] == -boudaryCoordi){
-                console.log("yes");
                 
                 // Color all 4 vertex
                 for (let k = 0; k < 4; k++) {
@@ -147,7 +146,6 @@ function colorRubikCube(vertex){
                 }
 
             }else if(vertex[index+axis] == boudaryCoordi && vertex[index+axis+12] == boudaryCoordi && vertex[index+axis+18] == boudaryCoordi){
-                console.log("yes");
                 for (let k = 0; k < 4; k++) {
                     coloredVertex[index+3+axis + k*6] = 1; 
                     coloredVertex[index+4+ k*6] = 1; 

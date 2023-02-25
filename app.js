@@ -1,6 +1,6 @@
-import { baseBoxIndices, baseBoxVertices, colorRubikCube, translateCube, translationMatrix } from "./data.js";
+import { baseBoxIndices, baseBoxVertices, colorRubikCube, translateCube, translationMatrix } from "./scripts/data.js";
 
-import { fragmentShaderText, vertexShaderText } from "./shader.js";
+import { fragmentShaderText, vertexShaderText } from "./scripts/shader.js";
 
 window.onload = function () {
 

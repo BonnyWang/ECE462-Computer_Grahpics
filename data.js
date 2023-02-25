@@ -37,44 +37,6 @@ var baseBoxVertices =
         1.0, -1.0, -1.0,    1.0, 1.0,1.0,
     ];
 
-var topFrontBoxVertices = 
-    [ // X, Y, Z           R, G, B
-        // Top
-        -2.0, 2.0, -2.0,   1.0, 0.0, 0.0,
-        -2.0, 2.0, 2.0,    1.0, 0.0, 0.0,
-        2.0, 2.0, 2.0,     1.0, 0.0, 0.0,
-        2.0, 2.0, -2.0,    1.0, 0.0, 0.0,
-
-        // Left
-        -2.0, 2.0, 2.0,    1.0, 0.0, 0.0,
-        -2.0, -2.0, 2.0,   1.0, 0.0, 0.0,
-        -2.0, -2.0, -2.0,  1.0, 0.0, 0.0,
-        -2.0, 2.0, -2.0,   1.0, 0.0, 0.0,
-
-        // Right
-        2.0, 2.0, 2.0,    1.0, 0.0, 0.0,
-        2.0, -2.0, 2.0,   1.0, 0.0, 0.0,
-        2.0, -2.0, -2.0,  1.0, 0.0, 0.0,
-        2.0, 2.0, -2.0,   1.0, 0.0, 0.0,
-
-        // Front
-        2.0, 2.0, 2.0,    1.0,0.0,0.0,
-        2.0, -2.0, 2.0,    1.0,0.0,0.0,
-        -2.0, -2.0, 2.0,    1.0,0.0,0.0,
-        -2.0, 2.0, 2.0,    1.0,0.0,0.0,
-
-        // Back
-        2.0, 2.0, -2.0,   1.0,0.0,0.0,
-        2.0, -2.0, -2.0,   1.0,0.0,0.0,
-        -2.0, -2.0, -2.0,   1.0,0.0,0.0,
-        -2.0, 2.0, -2.0,   1.0,0.0,0.0,
-
-        // Bottom
-        -2.0, -2.0, -2.0,   1.0, 0.0, 0.0,
-        -2.0, -2.0, 2.0,    1.0, 0.0, 0.0,
-        2.0, -2.0, 2.0,     1.0, 0.0, 0.0,
-        2.0, -2.0, -2.0,    1.0, 0.0, 0.0,
-    ];
 
 // Define Indices so that WebGL know how to connect vertex to create an area
 var baseBoxIndices =
@@ -104,18 +66,53 @@ var baseBoxIndices =
         22, 20, 23
     ];
 
+var translationMatrix = [
+    // Front
+    [-2,2,2],
+    [0,2,2],
+    [2,2,2],
+    [-2,0,2],
+    [0,0,2],
+    [2,0,2],
+    [-2,-2,2],
+    [0,-2,2],
+    [2,-2,2],
+    // Middle
+    [-2,2,0],
+    [0,2,0],
+    [2,2,0],
+    [-2,0,0],
+    [0,0,0],
+    [2,0,0],
+    [-2,-2,0],
+    [0,-2,0],
+    [2,-2,0],
+    // Back
+    [-2,2,-2],
+    [0,2,-2],
+    [2,2,-2],
+    [-2,0,-2],
+    [0,0,-2],
+    [2,0,-2],
+    [-2,-2,-2],
+    [0,-2,-2],
+    [2,-2,-2],
+]
+
+// These are only for generating the rubic cubes
+// The translation is not related to affine translation (vertex translation)
 function translateCube(vertex, Txyz, indices, indicesOffset){
     let index = 0;
     var newVertex = vertex.slice();
     let padding = 0.05;
-s
-    console.log(newVertex);
+
+    // console.log(newVertex);
     var newIndices = indices.slice();
 
     while( index < vertex.length) {
-        newVertex[index] += Txyz[0] + padding;
-        newVertex[index+1] += Txyz[1] + padding;
-        newVertex[index+2] += Txyz[2] + padding;
+        newVertex[index] += Txyz[0];
+        newVertex[index+1] += Txyz[1];     
+        newVertex[index+2] += Txyz[2];
 
         index += 6;
     }
@@ -124,13 +121,72 @@ s
         newIndices[i] = indices[i] + 24*indicesOffset;
         
     }
-    console.log(newVertex);
+    // console.log(newVertex);
 
     return {newVertex, newIndices};
 }
 
-function generateRubikCube(){
+function colorRubikCube(vertex){
+    let index = 0;
+    var coloredVertex = vertex.slice();
 
+    
+
+    while( index < vertex.length) {
+        if(vertex[index] == -3){
+            console.log("yes");
+            coloredVertex[index+3] = 1; 
+            coloredVertex[index+4] = 0; 
+            coloredVertex[index+5] = 0; 
+        }
+        if(vertex[index] == 3){
+            console.log("yes");
+            coloredVertex[index+3] = 0; 
+            coloredVertex[index+4] = 1; 
+            coloredVertex[index+5] = 0; 
+        }
+        if(vertex[index+1] == 3){
+            console.log("yes");
+            coloredVertex[index+3] = 0; 
+            coloredVertex[index+4] = 0; 
+            coloredVertex[index+5] = 1; 
+        }
+        if(vertex[index+1] == -3){
+            console.log("yes");
+            coloredVertex[index+3] = 1; 
+            coloredVertex[index+4] = 0; 
+            coloredVertex[index+5] = 1; 
+        }
+        if(vertex[index+2] == -3){
+            console.log("yes");
+            coloredVertex[index+3] = 1; 
+            coloredVertex[index+4] = 1; 
+            coloredVertex[index+5] = 0; 
+        }
+        if(vertex[index+2] == 3){
+            console.log("yes");
+            coloredVertex[index+3] = 1; 
+            coloredVertex[index+4] = 1; 
+            coloredVertex[index+5] = 1; 
+        }
+
+        index = index +6;
+    }
+
+    return coloredVertex;
 }
 
-export {baseBoxVertices, baseBoxIndices, translateCube}
+// function generateRubikTranslations(){
+
+//     var translationMatrix = new Array(27);
+//     for (let i = 0; i < 3; i++) {
+//         for (let j = 0; i < 3; i++) {
+//             for (let k = 0; i < 3; i++) {
+//                 translationMatrix[i]
+//             }
+//         }
+        
+//     }
+// }
+
+export {baseBoxVertices, baseBoxIndices, translationMatrix, translateCube, colorRubikCube}

@@ -1,4 +1,4 @@
-import { baseBoxIndices, baseBoxVertices, translateCube } from "./data.js";
+import { baseBoxIndices, baseBoxVertices, colorRubikCube, translateCube, translationMatrix } from "./data.js";
 
 import { fragmentShaderText, vertexShaderText } from "./shader.js";
 
@@ -79,18 +79,26 @@ function drawCube(gl, canvas){
 
 	// Setup Cube Information
 	//////////////////////////////////////////////////////////////////////////////////////
-
+	var boxVertices = [];
+	var boxIndices = [];
 	// Vertices for a standard box at the origin
-	let newBox = translateCube(baseBoxVertices,[2,2,2],baseBoxIndices,1);
+	for (let index = 0; index < translationMatrix.length; index++) {
+		let newBox = translateCube(baseBoxVertices,translationMatrix[index],baseBoxIndices,index);
 
-	var box2Vertices = newBox.newVertex;
-	var box2Indi = newBox.newIndices;
+		var newBoxVertices = colorRubikCube(newBox.newVertex);
+		var newBoxIndices = newBox.newIndices;
+		
+		boxVertices =  boxVertices.concat(newBoxVertices);
+		boxIndices = boxIndices.concat(newBoxIndices);
+
+		// console.log(index);
+		
+	}
 	
-	baseBoxVertices.push.apply(baseBoxVertices,box2Vertices);
-	baseBoxIndices.push.apply(baseBoxIndices,box2Indi);
-	var boxVertices = baseBoxVertices;
-	var boxIndices = baseBoxIndices;
-	console.log(boxVertices)
+
+	
+	// console.log(boxVertices);
+	// console.log(boxIndices);
 
 	// Create Buffer for vertex and indices individually
 	var boxVertexBufferObject = gl.createBuffer();
@@ -148,14 +156,50 @@ function drawCube(gl, canvas){
 
 	//
 	// Main render loop
+
+
+	// Handle Mouse Movement
+	// https://www.tutorialspoint.com/webgl/webgl_interactive_cube.htm
+	var AMORTIZATION = 0.95;
+	var drag = false;
+	var old_x, old_y;
+	var dX = 0, dY = 0;
+
+	var PHI = 0,THETA = 0;
+
+	var mouseDown = function(e) {
+	   drag = true;
+	   old_x = e.pageX, old_y = e.pageY;
+	   e.preventDefault();
+	   return false;
+	};
+
+	var mouseUp = function(e){
+	   drag = false;
+	};
+
+	var mouseMove = function(e) {
+	   if (!drag) return false;
+	   dX = (e.pageX-old_x)*2*Math.PI/canvas.width,
+	   dY = (e.pageY-old_y)*2*Math.PI/canvas.height;
+	   THETA+= dX;
+	   PHI+=dY;
+	   old_x = e.pageX, old_y = e.pageY;
+	   e.preventDefault();
+	};
+
+	canvas.addEventListener("mousedown", mouseDown, false);
+	canvas.addEventListener("mouseup", mouseUp, false);
+	canvas.addEventListener("mouseout", mouseUp, false);
+	canvas.addEventListener("mousemove", mouseMove, false);
 	
 	var identityMatrix = new Float32Array(16);
 	mat4.identity(identityMatrix);
 	var angle = 0;
 	var loop = function () {
 		angle = performance.now() / 1000 / 6 * 2 * Math.PI;
-		mat4.rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
-		mat4.rotate(xRotationMatrix, identityMatrix, angle, [1, 0, 0]);
+		mat4.rotate(yRotationMatrix, identityMatrix, THETA, [0, 1, 0]);
+		mat4.rotate(xRotationMatrix, identityMatrix, -PHI, [1, 0, 0]);
 		mat4.mul(worldMatrix, yRotationMatrix, xRotationMatrix);
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
 

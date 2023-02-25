@@ -1,40 +1,40 @@
 var baseBoxVertices = 
     [ // X, Y, Z           R, G, B
         // Top
-        -1.0, 1.0, -1.0,   1.0, 1.0, 1.0,
-        -1.0, 1.0, 1.0,    1.0, 1.0, 1.0,
-        1.0, 1.0, 1.0,     1.0, 1.0, 1.0,
-        1.0, 1.0, -1.0,    1.0, 1.0, 1.0,
+        -1.0, 1.0, -1.0,   0.0, 0.0, 0.0,
+        -1.0, 1.0, 1.0,    0.0, 0.0, 0.0,
+        1.0, 1.0, 1.0,     0.0, 0.0, 0.0,
+        1.0, 1.0, -1.0,    0.0, 0.0, 0.0,
 
         // Left
-        -1.0, 1.0, 1.0,    1.0, 1.0, 1.0,
-        -1.0, -1.0, 1.0,   1.0, 1.0, 1.0,
-        -1.0, -1.0, -1.0,  1.0, 1.0, 1.0,
-        -1.0, 1.0, -1.0,   1.0, 1.0, 1.0,
+        -1.0, 1.0, 1.0,    0.0, 0.0, 0.0,
+        -1.0, -1.0, 1.0,   0.0, 0.0, 0.0,
+        -1.0, -1.0, -1.0,  0.0, 0.0, 0.0,
+        -1.0, 1.0, -1.0,   0.0, 0.0, 0.0,
 
         // Right
-        1.0, 1.0, 1.0,    1.0, 1.0, 1.0,
-        1.0, -1.0, 1.0,   1.0, 1.0, 1.0,
-        1.0, -1.0, -1.0,  1.0, 1.0, 1.0,
-        1.0, 1.0, -1.0,   1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0,    0.0, 0.0, 0.0,
+        1.0, -1.0, 1.0,   0.0, 0.0, 0.0,
+        1.0, -1.0, -1.0,  0.0, 0.0, 0.0,
+        1.0, 1.0, -1.0,   0.0, 0.0, 0.0,
 
         // Front
-        1.0, 1.0, 1.0,    1.0,1.0, 1.0,
-        1.0, -1.0, 1.0,    1.0,1.0, 1.0,
-        -1.0, -1.0, 1.0,    1.0,1.0, 1.0,
-        -1.0, 1.0, 1.0,    1.0,1.0, 1.0,
+        1.0, 1.0, 1.0,    0.0, 0.0, 0.0,
+        1.0, -1.0, 1.0,    0.0, 0.0, 0.0,
+        -1.0, -1.0, 1.0,    0.0, 0.0, 0.0,
+        -1.0, 1.0, 1.0,    0.0, 0.0, 0.0,
 
         // Back
-        1.0, 1.0, -1.0,   1.0,1.0, 1.0,
-        1.0, -1.0, -1.0,   1.0,1.0, 1.0,
-        -1.0, -1.0, -1.0,   1.0,1.0, 1.0,
-        -1.0, 1.0, -1.0,   1.0,1.0, 1.0,
+        1.0, 1.0, -1.0,   0.0, 0.0, 0.0,
+        1.0, -1.0, -1.0,   0.0, 0.0, 0.0,
+        -1.0, -1.0, -1.0,  0.0, 0.0, 0.0,
+        -1.0, 1.0, -1.0,   0.0, 0.0, 0.0,
 
         // Bottom
-        -1.0, -1.0, -1.0,   1.0, 1.0,1.0,
-        -1.0, -1.0, 1.0,    1.0, 1.0,1.0,
-        1.0, -1.0, 1.0,     1.0, 1.0,1.0,
-        1.0, -1.0, -1.0,    1.0, 1.0,1.0,
+        -1.0, -1.0, -1.0,   0.0, 0.0, 0.0,
+        -1.0, -1.0, 1.0,    0.0, 0.0, 0.0,
+        1.0, -1.0, 1.0,     0.0, 0.0, 0.0,
+        1.0, -1.0, -1.0,    0.0, 0.0, 0.0,
     ];
 
 
@@ -101,20 +101,22 @@ var translationMatrix = [
     [2,-2,-2],
 ]
 
+const boudaryCoordi = 3.2;
+
 // These are only for generating the rubic cubes
 // The translation is not related to affine translation (vertex translation)
 function translateCube(vertex, Txyz, indices, indicesOffset){
     let index = 0;
     var newVertex = vertex.slice();
-    let padding = 0.05;
+    let padding = 0.1;
 
     // console.log(newVertex);
     var newIndices = indices.slice();
 
     while( index < vertex.length) {
-        newVertex[index] += Txyz[0];
-        newVertex[index+1] += Txyz[1];     
-        newVertex[index+2] += Txyz[2];
+        newVertex[index] += Txyz[0]*(1+padding);
+        newVertex[index+1] += Txyz[1]*(1+padding);     
+        newVertex[index+2] += Txyz[2]*(1+padding);
 
         index += 6;
     }
@@ -136,21 +138,28 @@ function colorRubikCube(vertex){
         for (let axis = 0; axis < 3; axis++) {
             
             // To check whether the face is the surface of the rubik cube
-            if(vertex[index+axis] == -3 && vertex[index+axis+12] == -3 && vertex[index+axis+18] == -3){
+            if(vertex[index+axis] == -boudaryCoordi && vertex[index+axis+12] == -boudaryCoordi && vertex[index+axis+18] == -boudaryCoordi){
                 console.log("yes");
-                coloredVertex[index+3+axis] = 0; 
-            }
+                
+                // Color all 4 vertex
+                for (let k = 0; k < 4; k++) {
+                    coloredVertex[index+3+axis + k*6] = 1; 
+                }
 
-            if(vertex[index+axis] == 3 && vertex[index+axis+12] == 3 && vertex[index+axis+18] == 3){
+            }else if(vertex[index+axis] == boudaryCoordi && vertex[index+axis+12] == boudaryCoordi && vertex[index+axis+18] == boudaryCoordi){
                 console.log("yes");
-                coloredVertex[index+3+axis] = 0;
-                coloredVertex[index+4] = 0.2; 
-
+                for (let k = 0; k < 4; k++) {
+                    coloredVertex[index+3+axis + k*6] = 1; 
+                    coloredVertex[index+4+ k*6] = 1; 
+                }
+                
                 // To make an exceptional case
                 if(axis == 1){
-                    coloredVertex[index+3] = 0; 
-                    coloredVertex[index+4] = 0; 
-                    coloredVertex[index+5] = 0; 
+                    for (let k = 0; k < 4; k++) {
+                        coloredVertex[index+3+ k*6] = 1; 
+                        coloredVertex[index+4+ k*6] = 1; 
+                        coloredVertex[index+5+ k*6] = 1; 
+                    }
                 } 
 
             }

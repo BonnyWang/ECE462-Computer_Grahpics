@@ -5,6 +5,8 @@ import { fragmentShaderText, vertexShaderText } from "./shader.js";
 window.onload = function () {
 
 	var canvas = document.getElementById('c');
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
 	var gl = canvas.getContext('webgl');
 
 	if (!gl) {
@@ -191,7 +193,7 @@ function setUpScene(gl,canvas, program, boxIndices){
 		mat4.mul(worldMatrix, yRotationMatrix, xRotationMatrix);
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
 
-		gl.clearColor(0.75, 0.85, 0.8, 1.0);
+		gl.clearColor(0.75, 0.75, 0.75, 1.0);
 		gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
 		gl.drawElements(gl.TRIANGLES, boxIndices.length, gl.UNSIGNED_SHORT, 0);
 

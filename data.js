@@ -77,6 +77,7 @@ var translationMatrix = [
     [-2,-2,2],
     [0,-2,2],
     [2,-2,2],
+    
     // Middle
     [-2,2,0],
     [0,2,0],
@@ -87,6 +88,7 @@ var translationMatrix = [
     [-2,-2,0],
     [0,-2,0],
     [2,-2,0],
+    
     // Back
     [-2,2,-2],
     [0,2,-2],
@@ -130,63 +132,36 @@ function colorRubikCube(vertex){
     let index = 0;
     var coloredVertex = vertex.slice();
 
-    
-
     while( index < vertex.length) {
-        if(vertex[index] == -3){
-            console.log("yes");
-            coloredVertex[index+3] = 1; 
-            coloredVertex[index+4] = 0; 
-            coloredVertex[index+5] = 0; 
-        }
-        if(vertex[index] == 3){
-            console.log("yes");
-            coloredVertex[index+3] = 0; 
-            coloredVertex[index+4] = 1; 
-            coloredVertex[index+5] = 0; 
-        }
-        if(vertex[index+1] == 3){
-            console.log("yes");
-            coloredVertex[index+3] = 0; 
-            coloredVertex[index+4] = 0; 
-            coloredVertex[index+5] = 1; 
-        }
-        if(vertex[index+1] == -3){
-            console.log("yes");
-            coloredVertex[index+3] = 1; 
-            coloredVertex[index+4] = 0; 
-            coloredVertex[index+5] = 1; 
-        }
-        if(vertex[index+2] == -3){
-            console.log("yes");
-            coloredVertex[index+3] = 1; 
-            coloredVertex[index+4] = 1; 
-            coloredVertex[index+5] = 0; 
-        }
-        if(vertex[index+2] == 3){
-            console.log("yes");
-            coloredVertex[index+3] = 1; 
-            coloredVertex[index+4] = 1; 
-            coloredVertex[index+5] = 1; 
-        }
+        for (let axis = 0; axis < 3; axis++) {
+            
+            // To check whether the face is the surface of the rubik cube
+            if(vertex[index+axis] == -3 && vertex[index+axis+12] == -3 && vertex[index+axis+18] == -3){
+                console.log("yes");
+                coloredVertex[index+3+axis] = 0; 
+            }
 
-        index = index +6;
+            if(vertex[index+axis] == 3 && vertex[index+axis+12] == 3 && vertex[index+axis+18] == 3){
+                console.log("yes");
+                coloredVertex[index+3+axis] = 0;
+                coloredVertex[index+4] = 0.2; 
+
+                // To make an exceptional case
+                if(axis == 1){
+                    coloredVertex[index+3] = 0; 
+                    coloredVertex[index+4] = 0; 
+                    coloredVertex[index+5] = 0; 
+                } 
+
+            }
+        }
+        
+        // Jump to next face
+        index = index +24;
     }
 
     return coloredVertex;
 }
 
-// function generateRubikTranslations(){
-
-//     var translationMatrix = new Array(27);
-//     for (let i = 0; i < 3; i++) {
-//         for (let j = 0; i < 3; i++) {
-//             for (let k = 0; i < 3; i++) {
-//                 translationMatrix[i]
-//             }
-//         }
-        
-//     }
-// }
 
 export {baseBoxVertices, baseBoxIndices, translationMatrix, translateCube, colorRubikCube}

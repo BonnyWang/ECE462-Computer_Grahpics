@@ -25,21 +25,6 @@ window.onload = function () {
 	gl.frontFace(gl.CCW);
 	gl.cullFace(gl.BACK);
 
-	
-
-
-	///////////////////////////////////////////////////////////////////////////////////////
-	// Finished General Setup
-	///////////////////////////////////////////////////////////////////////////////////////
-
-	// programs = [];
-	drawCube(gl, canvas);
-
-};
-
-
-
-function drawCube(gl, canvas){
 
 	var vertexShader = gl.createShader(gl.VERTEX_SHADER);
     var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -76,9 +61,20 @@ function drawCube(gl, canvas){
 		return;
 	}
 
+	
+	///////////////////////////////////////////////////////////////////////////////////////
+	// Finished General Setup
+	///////////////////////////////////////////////////////////////////////////////////////
 
-	// Setup Cube Information
-	//////////////////////////////////////////////////////////////////////////////////////
+
+	let boxIndices = drawCube(gl, canvas, program).boxIndices;
+	setUpScene(gl,canvas, program, boxIndices);
+};
+
+
+
+function drawCube(gl, canvas, program){
+
 	var boxVertices = [];
 	var boxIndices = [];
 	// Vertices for a standard box at the origin
@@ -90,15 +86,9 @@ function drawCube(gl, canvas){
 		
 		boxVertices =  boxVertices.concat(newBoxVertices);
 		boxIndices = boxIndices.concat(newBoxIndices);
-
-		// console.log(index);
 		
 	}
 	
-
-	
-	// console.log(boxVertices);
-	// console.log(boxIndices);
 
 	// Create Buffer for vertex and indices individually
 	var boxVertexBufferObject = gl.createBuffer();
@@ -132,9 +122,10 @@ function drawCube(gl, canvas){
 	gl.enableVertexAttribArray(colorAttribLocation);
 	gl.useProgram(program);
 	
+	return {boxVertices, boxIndices};
+}
 
-	// Tell OpenGL state machine which program should be active.
-	
+function setUpScene(gl,canvas, program, boxIndices){
 
 	var matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');
 	var matViewUniformLocation = gl.getUniformLocation(program, 'mView');
@@ -151,14 +142,11 @@ function drawCube(gl, canvas){
 	gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
 	gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
 
+
 	var xRotationMatrix = new Float32Array(16);
 	var yRotationMatrix = new Float32Array(16);
 
-	//
-	// Main render loop
-
-
-	// Handle Mouse Movement
+		// Handle Mouse Movement
 	// https://www.tutorialspoint.com/webgl/webgl_interactive_cube.htm
 	var AMORTIZATION = 0.95;
 	var drag = false;

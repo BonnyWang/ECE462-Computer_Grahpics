@@ -13,28 +13,120 @@
 		<script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
 
 		<!-- Define shaders -->
-		<script  id="vertex-shader" type="x-shader/x-vertex">
+		<script  id="vertex-shader" type="x-shader/x-vertex"># version 300 es
 			precision mediump float;
-			attribute vec3 vertPosition;
-			attribute vec3 vertColor;
-			varying vec3 fragColor;
+			in vec3 vertPosition;
+			in vec3 vertColor;
+			out vec3 fragColor;
 			uniform mat4 mWorld;
 			uniform mat4 mView;
 			uniform mat4 mProj;
 
+			uniform mat4 u_identity;
+
+			uniform vec3 u_rotation;
+			
+			// This is used to record the rotation of 9 planes in the rubik's cube
+			uniform mat3 u_subRotations;
+
+			out vec3 updatedVert;
+
+			//Functions to do rotation based on given degrees
+			mat4 getXrotation( float degree){
+				mat4 rotationX = mat4(
+					1, 0, 0, 0,
+					0, cos(degree), -sin(degree), 0,
+					0, sin(degree), cos(degree), 0,
+					0, 0, 0, 1
+				);
+
+				return rotationX;
+			}
+			
+			mat4 getYrotation( float degree){
+				mat4 rotationY = mat4(
+					cos(degree), 0, sin(degree), 0,
+					0, 1, 0, 0,
+					-sin(degree), 0, cos(degree), 0,
+					0, 0, 0, 1
+				);
+
+				return rotationY;
+			}
+
+			mat4 getZrotation( float degree){
+				mat4 rotationZ = mat4(
+					cos(degree), -sin(degree), 0, 0,
+					sin(degree), cos(degree), 0, 0,
+					0, 0, 1, 0,
+					0, 0, 0, 1
+				);	
+
+				return rotationZ;
+			}
+
 			void main()
 			{
+				
+				int INFINITE = 10;
+
+				//Define 3 ranges for different planes 
+				vec2 ranges[3];
+				ranges[0] = vec2(1.05, INFINITE);
+				ranges[1] = vec2(-1.05, 1.05);
+				ranges[2] = vec2(-INFINITE, -1.05);
+
+				mat4 modelMatrix = u_identity;
+				vec4 updatedPosition = vec4(vertPosition, 1.0);
+				
+				// Change the rotation based on all the operation on the 9 planes
+				// This should be used for only one operation
+				for(int i=0; i<3; i++){
+					
+					if((updatedPosition.x > ranges[i][0]) && (updatedPosition.x < ranges[i][1])){
+						mat4 tempRotationX = getXrotation(u_subRotations[0][i]);
+						modelMatrix = modelMatrix * tempRotationX;
+						updatedPosition = tempRotationX*updatedPosition;
+					}
+
+					
+					if((updatedPosition.y > ranges[i][0]) && (updatedPosition.y < ranges[i][1])){
+						mat4 tempRotationY = getYrotation(u_subRotations[1][i]);
+						modelMatrix = modelMatrix * tempRotationY;
+						updatedPosition = tempRotationY*updatedPosition;
+
+					}
+
+					if((updatedPosition.z > ranges[i][0]) && (updatedPosition.z < ranges[i][1])){
+						mat4 tempRotationZ = getZrotation(u_subRotations[2][i]);
+						modelMatrix = modelMatrix * tempRotationZ;
+						updatedPosition = tempRotationZ*updatedPosition;
+
+					}
+
+				}
+				
+				
+				/*
+				if(vertPosition.x < -1.05){
+					modelMatrix = getXrotation(u_subRotations[0][0]);
+					
+				}
+				*/
+
+				gl_Position = mProj * mView * mWorld *updatedPosition;
 				fragColor = vertColor;
-				gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
 			}
 		</script>
-		<script  id="fragment-shader" type="x-shader/x-fragment">
+		<script  id="fragment-shader" type="x-shader/x-fragment"># version 300 es
+			
 			precision mediump float;
 
-			varying vec3 fragColor;
+			in vec3 fragColor;
+			out vec4 color;
 			void main()
 			{
-				gl_FragColor = vec4(fragColor, 1.0);
+				color = vec4(fragColor, 1.0);
 			}
 		</script>
 

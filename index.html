@@ -29,6 +29,8 @@
 			// This is used to record the rotation of 9 planes in the rubik's cube
 			uniform mat3 u_subRotations;
 
+			uniform float u_time;
+
 			out vec3 updatedVert;
 
 			//Functions to do rotation based on given degrees
@@ -77,6 +79,7 @@
 				ranges[2] = vec2(-INFINITE, -1.05);
 
 				mat4 modelMatrix = u_identity;
+
 				vec4 updatedPosition = vec4(vertPosition, 1.0);
 				
 				// Change the rotation based on all the operation on the 9 planes
@@ -106,10 +109,19 @@
 
 				}
 				
-				
-				// Exclude the case when it is the axis vertex
-				if(abs(vertPosition.x) > 5.0 || abs(vertPosition.y) > 5.0 || abs(vertPosition.z) >5.0){
-					updatedPosition = vec4(vertPosition, 1.0);			
+				float axisRotateSpeed = 0.005;
+				// Exclude the case when it is the axis vertex, Rotate the axis so that they can be always seen in 3D space no matter how you rotate it
+				if(abs(vertPosition.x) > 5.0 ){
+					mat4 xAxisRotation = getXrotation(u_time*axisRotateSpeed);
+					updatedPosition = vec4(vertPosition, 1.0) *xAxisRotation;			
+				}
+				if(abs(vertPosition.y) > 5.0 ){
+					mat4 yAxisRotation = getYrotation(u_time*axisRotateSpeed);
+					updatedPosition = vec4(vertPosition, 1.0) *yAxisRotation;			
+				}
+				if(abs(vertPosition.z) > 5.0 ){
+					mat4 zAxisRotation = getZrotation(u_time*axisRotateSpeed);
+					updatedPosition = vec4(vertPosition, 1.0) *zAxisRotation;			
 				}
 				
 

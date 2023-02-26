@@ -149,7 +149,7 @@ function setUpScene(gl,canvas, program, boxIndices){
 	var subRotations = new Float32Array(9);
 	// subRotations[6] = Math.PI/2;
 	
-	
+	const timeLocation = gl.getUniformLocation(program, "u_time");
 
 	var worldMatrix = new Float32Array(16);
 	var viewMatrix = new Float32Array(16);
@@ -188,6 +188,7 @@ function setUpScene(gl,canvas, program, boxIndices){
 		gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
 		gl.drawElements(gl.TRIANGLES, boxIndices.length, gl.UNSIGNED_SHORT, 0);
 
+		gl.uniform1f(timeLocation, performance.now())
 
 		requestAnimationFrame(loop);
 	};

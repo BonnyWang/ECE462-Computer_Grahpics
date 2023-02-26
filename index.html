@@ -27,7 +27,9 @@
 			uniform vec3 u_rotation;
 			
 			// This is used to record the rotation of 9 planes in the rubik's cube
-			uniform mat3 u_subRotations;
+			// Max number of turns allowed in that program
+			uniform mat3 u_subRotations[1000];
+			uniform int u_turn;
 
 			uniform float u_time;
 
@@ -84,27 +86,30 @@
 				
 				// Change the rotation based on all the operation on the 9 planes
 				// This should be used for only one operation
-				for(int i=0; i<3; i++){
-					
-					if((updatedPosition.x > ranges[i][0]) && (updatedPosition.x < ranges[i][1])){
-						mat4 tempRotationX = getXrotation(u_subRotations[0][i]);
-						modelMatrix = modelMatrix * tempRotationX;
-						updatedPosition = tempRotationX*updatedPosition;
-					}
+				for(int t = 0; t <= u_turn; t++){
 
-					
-					if((updatedPosition.y > ranges[i][0]) && (updatedPosition.y < ranges[i][1])){
-						mat4 tempRotationY = getYrotation(u_subRotations[1][i]);
-						modelMatrix = modelMatrix * tempRotationY;
-						updatedPosition = tempRotationY*updatedPosition;
+					for(int i=0; i<3; i++){
+						
+						if((updatedPosition.x > ranges[i][0]) && (updatedPosition.x < ranges[i][1])){
+							mat4 tempRotationX = getXrotation(u_subRotations[t][0][i]);
+							modelMatrix = modelMatrix * tempRotationX;
+							updatedPosition = tempRotationX*updatedPosition;
+						}
 
-					}
+						
+						if((updatedPosition.y > ranges[i][0]) && (updatedPosition.y < ranges[i][1])){
+							mat4 tempRotationY = getYrotation(u_subRotations[t][1][i]);
+							modelMatrix = modelMatrix * tempRotationY;
+							updatedPosition = tempRotationY*updatedPosition;
 
-					if((updatedPosition.z > ranges[i][0]) && (updatedPosition.z < ranges[i][1])){
-						mat4 tempRotationZ = getZrotation(u_subRotations[2][i]);
-						modelMatrix = modelMatrix * tempRotationZ;
-						updatedPosition = tempRotationZ*updatedPosition;
+						}
 
+						if((updatedPosition.z > ranges[i][0]) && (updatedPosition.z < ranges[i][1])){
+							mat4 tempRotationZ = getZrotation(u_subRotations[t][2][i]);
+							modelMatrix = modelMatrix * tempRotationZ;
+							updatedPosition = tempRotationZ*updatedPosition;
+
+						}
 					}
 
 				}

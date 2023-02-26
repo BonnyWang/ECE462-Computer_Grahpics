@@ -146,7 +146,8 @@ function setUpScene(gl,canvas, program, boxIndices){
 	var identityUniformLocation = gl.getUniformLocation(program, 'u_identity');
 	
 	var subRotationUniformLocation = gl.getUniformLocation(program, 'u_subRotations');
-	var subRotations = new Float32Array(9);
+	var turnUniformLocation = gl.getUniformLocation(program, 'u_turn');
+	var subRotations = new Float32Array(9000);
 	// subRotations[6] = Math.PI/2;
 	
 	const timeLocation = gl.getUniformLocation(program, "u_time");
@@ -198,6 +199,10 @@ function setUpScene(gl,canvas, program, boxIndices){
 	var direction = 1;
 	var lockAnimation = 0;
 
+	var turn = 0;
+	gl.uniform1i(turnUniformLocation, turn);
+
+
 	var startOperation = function(){
 		
 		if(lockAnimation == 1) {return;}
@@ -205,8 +210,9 @@ function setUpScene(gl,canvas, program, boxIndices){
 		lockAnimation = 1;
 
 		var startTime = performance.now();
-		var startAngle = subRotations[planeIndex];
+		// var startAngle = subRotations[planeIndex];
 		// console.log(subRotations[1]);
+		
 
 		var userOperation = function (){
 
@@ -217,13 +223,16 @@ function setUpScene(gl,canvas, program, boxIndices){
 			if(Math.abs(angle) >= Math.PI/2){
 				
 				// angle = Math.PI/2 + startAngle;
-				subRotations[planeIndex] = startAngle + direction*Math.PI/2;
+
+				subRotations[planeIndex + turn*9] = direction*Math.PI/2;
+				turn = turn +1;
+				gl.uniform1i(turnUniformLocation, turn);
 				gl.uniformMatrix3fv(subRotationUniformLocation, gl.FALSE,subRotations);
 				lockAnimation = 0;
 				return;
 			}
 
-			subRotations[planeIndex] = angle + startAngle;
+			subRotations[planeIndex + turn*9] = angle;
 			gl.uniformMatrix3fv(subRotationUniformLocation, gl.FALSE,subRotations);
 
 			requestAnimationFrame(userOperation);

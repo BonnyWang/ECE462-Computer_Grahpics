@@ -24,15 +24,37 @@ button{
   padding-left: 10px;
   padding-right: 10px;
   margin: 2px;
+  margin-left: 20px;
   font-size: larger;
-  color: orangered;
-  width: 45%;
+  color: deeppink;
+  width: 30%;
 }
 
 button:hover{
-  border: orangered 2px solid;
+  border: deeppink 2px solid;
 }
 
 button:active{
-  background-color: orangered;
+  background-color: deeppink;
+}
+
+.xColor {
+  background-image: linear-gradient(yellow, red);
+  width: 5px;
+  height: 100;
+  position: fixed;
+}
+
+.yColor {
+  background-image: linear-gradient(white, rgb(0, 255, 0));
+  width: 5px;
+  height: 100;
+  position: fixed;
+}
+
+.zColor {
+  background-image: linear-gradient(rgb(0,255,255), rgb(0, 0, 255));
+  width: 5px;
+  height: 100;
+  position: fixed;
 }

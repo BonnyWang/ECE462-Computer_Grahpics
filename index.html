@@ -69,6 +69,7 @@
 				return rotationZ;
 			}
 
+
 			void main()
 			{
 				
@@ -114,8 +115,10 @@
 
 				}
 				
-				float axisRotateSpeed = 0.005;
+
 				// Exclude the case when it is the axis vertex, Rotate the axis so that they can be always seen in 3D space no matter how you rotate it
+				float axisRotateSpeed = 0.005;
+
 				if(abs(vertPosition.x) > 5.0 ){
 					mat4 xAxisRotation = getXrotation(u_time*axisRotateSpeed);
 					updatedPosition = vec4(vertPosition, 1.0) *xAxisRotation;			
@@ -152,41 +155,47 @@
 			<h1>
 				Plane Axis: X
 			</h1>
-			<button id="x0p">←</button>
-			<button id="x0m">→</button>
-			<br>
-			<button id="x1p">←</button>
-			<button id="x1m">→</button>
-			<br>
-			<button id="x2p">←</button>
-			<button id="x2m">→</button>
-			
+			<div>
+				<div class="xColor"></div>
+				<button id="x0p">←</button>
+				<button id="x0m">→</button>
+				<br>
+				<button id="x1p">←</button>
+				<button id="x1m">→</button>
+				<br>
+				<button id="x2p">←</button>
+				<button id="x2m">→</button>
+			</div>
 			<br>
 			<h1>
 				Plane Axis: Y
 			</h1>
-			
-			<button id="y0p">←</button>
-			<button id="y0m">→</button>
-			<br>
-			<button id="y1p">←</button>
-			<button id="y1m">→</button>
-			<br>
-			<button id="y2p">←</button>
-			<button id="y2m">→</button>
-			
+			<div>
+				<div class="yColor"></div>
+				<button id="y0p">←</button>
+				<button id="y0m">→</button>
+				<br>
+				<button id="y1p">←</button>
+				<button id="y1m">→</button>
+				<br>
+				<button id="y2p">←</button>
+				<button id="y2m">→</button>
+			</div>	
 			<br>
 			<h1>
 				Plane Axis: Z
 			</h1>
-			<button id="z0p">←</button>
-			<button id="z0m">→</button>
-			<br>
-			<button id="z1p">←</button>
-			<button id="z1m">→</button>
-			<br>
-			<button id="z2p">←</button>
-			<button id="z2m">→</button>
+			<div>
+				<div class="zColor"></div>
+				<button id="z0p">←</button>
+				<button id="z0m">→</button>
+				<br>
+				<button id="z1p">←</button>
+				<button id="z1m">→</button>
+				<br>
+				<button id="z2p">←</button>
+				<button id="z2m">→</button>
+			</div>
 
 		</span>
 	</body>

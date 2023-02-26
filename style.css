@@ -1,20 +1,38 @@
-@import url("https://webglfundamentals.org/webgl/resources/webgl-tutorials.css");
 body {
   margin: 0;
   overflow: hidden;
 }
-canvas {
-  margin: 0;
-  overflow: hidden;
-}
+
 
 #UI {
-  position:fixed;
-  top: 0;
-  color: brown;
+  position: fixed; 
+  top:0; 
+  right:25; 
+  /* background-color:darkgrey; */
 }
 
 h1{
-  color: brown ;
+  font-family: 'Courier New', Courier, monospace;
+  color: deeppink ;
   background-color: ;
+  font-size: larger;
+}
+
+button{
+  background: none;
+  border: white 2px solid;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin: 2px;
+  font-size: larger;
+  color: orangered;
+  width: 45%;
+}
+
+button:hover{
+  border: orangered 2px solid;
+}
+
+button:active{
+  background-color: orangered;
 }

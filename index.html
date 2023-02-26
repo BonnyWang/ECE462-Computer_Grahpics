@@ -1,9 +1,9 @@
 <html>
 	<head>
 		<title>WebGL - Rotating Cube</title>
-		<link ref="stylesheet" href="./style.css" type="text/css">
+		<link rel="stylesheet" href="./style.css" type="text/css">
 	</head>
-	<body style="overflow: hidden;">
+	<body>
 		<canvas id="c" width="800" height="600">
 			Your browser does not support this!
 		</canvas>
@@ -131,37 +131,43 @@
 
 		<!-- Main script for webgl -->
 		<script src="app.js" type="module"></script>
-		<span id="UI" style="position: fixed; top:0; right:25; background-color:darkgrey;">
+		<span id="UI">
 			<h1>
-				Rotate Axis: X
+				Plane Axis: X
 			</h1>
 			<button id="x0p">←</button>
 			<button id="x0m">→</button>
-			
+			<br>
 			<button id="x1p">←</button>
 			<button id="x1m">→</button>
-			
+			<br>
 			<button id="x2p">←</button>
 			<button id="x2m">→</button>
 			
 			<br>
+			<h1>
+				Plane Axis: Y
+			</h1>
 			
 			<button id="y0p">←</button>
 			<button id="y0m">→</button>
-			
+			<br>
 			<button id="y1p">←</button>
 			<button id="y1m">→</button>
-			
+			<br>
 			<button id="y2p">←</button>
 			<button id="y2m">→</button>
-			<br>
 			
+			<br>
+			<h1>
+				Plane Axis: Z
+			</h1>
 			<button id="z0p">←</button>
 			<button id="z0m">→</button>
-			
+			<br>
 			<button id="z1p">←</button>
 			<button id="z1m">→</button>
-			
+			<br>
 			<button id="z2p">←</button>
 			<button id="z2m">→</button>
 

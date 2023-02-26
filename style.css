@@ -7,3 +7,14 @@ canvas {
   margin: 0;
   overflow: hidden;
 }
+
+#UI {
+  position:fixed;
+  top: 0;
+  color: brown;
+}
+
+h1{
+  color: brown ;
+  background-color: ;
+}

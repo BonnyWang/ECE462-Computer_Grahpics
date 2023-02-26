@@ -1,9 +1,9 @@
 <html>
 	<head>
 		<title>WebGL - Rotating Cube</title>
-		<link ref="stylesheet" href="style.css">
+		<link ref="stylesheet" href="./style.css" type="text/css">
 	</head>
-	<body>
+	<body style="overflow: hidden;">
 		<canvas id="c" width="800" height="600">
 			Your browser does not support this!
 		</canvas>
@@ -107,12 +107,11 @@
 				}
 				
 				
-				/*
-				if(vertPosition.x < -1.05){
-					modelMatrix = getXrotation(u_subRotations[0][0]);
-					
+				// Exclude the case when it is the axis vertex
+				if(abs(vertPosition.x) > 5.0 || abs(vertPosition.y) > 5.0 || abs(vertPosition.z) >5.0){
+					updatedPosition = vec4(vertPosition, 1.0);			
 				}
-				*/
+				
 
 				gl_Position = mProj * mView * mWorld *updatedPosition;
 				fragColor = vertColor;
@@ -132,5 +131,40 @@
 
 		<!-- Main script for webgl -->
 		<script src="app.js" type="module"></script>
+		<span id="UI" style="position: fixed; top:0; right:25; background-color:darkgrey;">
+			<h1>
+				Rotate Axis: X
+			</h1>
+			<button id="x0p">←</button>
+			<button id="x0m">→</button>
+			
+			<button id="x1p">←</button>
+			<button id="x1m">→</button>
+			
+			<button id="x2p">←</button>
+			<button id="x2m">→</button>
+			
+			<br>
+			
+			<button id="y0p">←</button>
+			<button id="y0m">→</button>
+			
+			<button id="y1p">←</button>
+			<button id="y1m">→</button>
+			
+			<button id="y2p">←</button>
+			<button id="y2m">→</button>
+			<br>
+			
+			<button id="z0p">←</button>
+			<button id="z0m">→</button>
+			
+			<button id="z1p">←</button>
+			<button id="z1m">→</button>
+			
+			<button id="z2p">←</button>
+			<button id="z2m">→</button>
+
+		</span>
 	</body>
 </html>

@@ -1,4 +1,4 @@
-import { baseBoxIndices, baseBoxVertices, colorRubikCube, translateCube, translationMatrix } from "./scripts/data.js";
+import { axisIndices, axisVertices, baseBoxIndices, baseBoxVertices, colorRubikCube, translateCube, translationMatrix } from "./scripts/data.js";
 
 window.onload = function () {
 
@@ -56,6 +56,9 @@ function drawCube(gl, canvas, program){
 		boxIndices = boxIndices.concat(newBoxIndices);
 		
 	}
+
+	boxVertices =  boxVertices.concat(axisVertices);
+	boxIndices = boxIndices.concat(axisIndices);
 	
 
 	// Create Buffer for vertex and indices individually
@@ -111,7 +114,6 @@ function setUpScene(gl,canvas, program, boxIndices){
 	   old_x = e.pageX, old_y = e.pageY;
 	   e.preventDefault();
 
-	   startOperation();
 	   return false;
 	};
 
@@ -155,7 +157,7 @@ function setUpScene(gl,canvas, program, boxIndices){
 
 
 	mat4.identity(worldMatrix);
-	mat4.lookAt(viewMatrix, [0, 0, -15], [0, 0, 0], [0, 1, 0]);
+	mat4.lookAt(viewMatrix, [0, 0, -20], [0, 0, 0], [0, 1, 0]);
 	mat4.perspective(projMatrix, glMatrix.toRadian(45), canvas.clientWidth / canvas.clientHeight, 0.1, 1000.0);
 
 	gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
@@ -191,34 +193,78 @@ function setUpScene(gl,canvas, program, boxIndices){
 	};
 	requestAnimationFrame(loop);
 
+	var planeIndex = 0;
+	var direction = 1;
+	var lockAnimation = 0;
+
 	var startOperation = function(){
+		
+		if(lockAnimation == 1) {return;}
+
+		lockAnimation = 1;
 
 		var startTime = performance.now();
-		var startAngle = subRotations[1];
-		console.log(subRotations[1]);
+		var startAngle = subRotations[planeIndex];
+		// console.log(subRotations[1]);
 
 		var userOperation = function (){
 
 			const speed = 2;
-			var angle = (performance.now() - startTime) / 1000 / 6 * 2 * Math.PI*speed;
+			var angle = (performance.now() - startTime) / 1000 / 6 * 2 * Math.PI*speed*direction;
 			
-			console.log(angle);
-			if(angle >= Math.PI/2){
+			// console.log(angle);
+			if(Math.abs(angle) >= Math.PI/2){
 				
 				// angle = Math.PI/2 + startAngle;
-				subRotations[1] = startAngle + Math.PI/2;
+				subRotations[planeIndex] = startAngle + direction*Math.PI/2;
 				gl.uniformMatrix3fv(subRotationUniformLocation, gl.FALSE,subRotations);
-
+				lockAnimation = 0;
 				return;
 			}
 
-			subRotations[1] = angle + startAngle;
+			subRotations[planeIndex] = angle + startAngle;
 			gl.uniformMatrix3fv(subRotationUniformLocation, gl.FALSE,subRotations);
 
 			requestAnimationFrame(userOperation);
 		}
 
 		userOperation();
+	}
+
+	var buttonPID = [
+		"x0p","x1p","x2p",
+		"y0p","y1p","y2p",
+		"z0p","z1p","z2p",
+	];
+	
+	var buttonMID = [
+		"x0m","x1m","x2m",
+		"y0m","y1m","y2m",
+		"z0m","z1m","z2m",
+	];
+
+	for (let i = 0; i < buttonPID.length; i++) {
+		// Button for Positive direction
+		let buttonXP = document.getElementById(buttonPID[i]);
+		buttonXP.addEventListener("click",function(){
+			// This need to be checked otherwise variable changes during the animation
+			if(lockAnimation){return;}
+			
+			planeIndex = i;
+			direction = 1;
+			startOperation();
+		}, false)
+
+		// Button for negative direction
+		let buttonXM = document.getElementById(buttonMID[i]);
+		buttonXM.addEventListener("click",function(){
+			if(lockAnimation){return;}
+
+			planeIndex = i;
+			direction = -1;
+			startOperation();
+		}, false)
+		
 	}
 
 }

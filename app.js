@@ -227,6 +227,7 @@ function setUpScene(gl,canvas, program, boxIndices){
 
 				subRotations[planeIndex + turn*9] = direction*Math.PI/2;
 				turn = turn +1;
+
 				gl.uniform1i(turnUniformLocation, turn);
 				gl.uniformMatrix3fv(subRotationUniformLocation, gl.FALSE,subRotations);
 				lockAnimation = 0;
@@ -281,7 +282,7 @@ function setUpScene(gl,canvas, program, boxIndices){
 	// Ask user to specify a initial entropy for play
 	var intendedTurn = 0;
 	const inputField = document.getElementById("inputNumber");
-	const question = document.getElementById("question");
+	const initialSpan = document.getElementById("initial");
 
 	inputField.addEventListener("keyup", function(event) {
 		if (event.key === "Enter") {
@@ -296,7 +297,7 @@ function setUpScene(gl,canvas, program, boxIndices){
 			requestAnimationFrame(loop);
 
 			inputField.style.display = "none";
-			question.style.display = "none";
+			initialSpan.style.display = "none";
 
 		}
 	});
@@ -307,6 +308,38 @@ function setUpScene(gl,canvas, program, boxIndices){
 		download("test", turn+":"+ subRotations+"");
 
 	}, false)
+	
+	// Handle upload state function
+	const uploadB = document.getElementById("upload");
+	uploadB.addEventListener('change', function(e) {
+		if (e.target.files[0]) {
+		  	console.log(e.target.files[0].name);
+		
+			// Read files
+			let file = e.target.files[0];
+    
+			var reader = new FileReader();
+			var uploadData;
+			reader.readAsText(file, "UTF-8");
+			reader.onload = function (evt) {
+				uploadData = evt.target.result.split(":");
+				turn = parseInt(uploadData[0]);
+				subRotations = uploadData[1].match(/-?\d+(?:\.\d+)?/g).map(Number);
+				gl.uniform1i(turnUniformLocation, turn);
+				gl.uniformMatrix3fv(subRotationUniformLocation, gl.FALSE,subRotations);
+				
+				console.log(turn+"upload turn");
+
+				console.log(subRotations);
+				requestAnimationFrame(loop);
+				inputField.style.display = "none";
+				initialSpan.style.display = "none";
+			}
+
+		 
+
+		}
+	});
 
 
 }

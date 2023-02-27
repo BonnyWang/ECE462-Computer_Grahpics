@@ -38,6 +38,15 @@ button:active{
   background-color: deeppink;
 }
 
+#download{
+  width: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  color: white;
+}
+
 .xColor {
   background-image: linear-gradient(yellow, red);
   width: 5px;

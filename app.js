@@ -1,4 +1,5 @@
 import { axisIndices, axisVertices, baseBoxIndices, baseBoxVertices, colorRubikCube, translateCube, translationMatrix } from "./scripts/data.js";
+import { download } from "./scripts/file-util.js";
 
 window.onload = function () {
 
@@ -296,8 +297,16 @@ function setUpScene(gl,canvas, program, boxIndices){
 
 			inputField.style.display = "none";
 			question.style.display = "none";
+
 		}
 	});
+
+	// Handle download state function
+	const downloadB = document.getElementById("download");
+	downloadB.addEventListener("click",function(){
+		download("test", turn+":"+ subRotations+"");
+
+	}, false)
 
 
 }

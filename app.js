@@ -35,14 +35,14 @@ window.onload = function () {
 	// Finished General Setup
 	///////////////////////////////////////////////////////////////////////////////////////
 
-	let boxIndices = drawCube(gl, canvas, program).boxIndices;
+	let boxIndices = generateCubes(gl, canvas, program).boxIndices;
 	setUpScene(gl,canvas, program, boxIndices);
 
 };
 
 
 
-function drawCube(gl, canvas, program){
+function generateCubes(gl, canvas, program){
 
 	var boxVertices = [];
 	var boxIndices = [];
@@ -102,7 +102,6 @@ function setUpScene(gl,canvas, program, boxIndices){
 
 	// Handle Mouse Movement
 	// https://www.tutorialspoint.com/webgl/webgl_interactive_cube.htm
-	var AMORTIZATION = 0.95;
 	var drag = false;
 	var old_x, old_y;
 	var dX = 0, dY = 0;
@@ -165,8 +164,6 @@ function setUpScene(gl,canvas, program, boxIndices){
 	gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
 	gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
 	gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
-
-
 
 	// Allow user to rotate camera/world matrix
 	var xRotationMatrix = new Float32Array(16);
@@ -335,8 +332,6 @@ function setUpScene(gl,canvas, program, boxIndices){
 				inputField.style.display = "none";
 				initialSpan.style.display = "none";
 			}
-
-		 
 
 		}
 	});

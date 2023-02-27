@@ -33,8 +33,6 @@
 
 			uniform float u_time;
 
-			out vec3 updatedVert;
-
 			//Functions to do rotation based on given degrees
 			mat4 getXrotation( float degree){
 				mat4 rotationX = mat4(
@@ -117,7 +115,7 @@
 				
 
 				// Exclude the case when it is the axis vertex, Rotate the axis so that they can be always seen in 3D space no matter how you rotate it
-				float axisRotateSpeed = 0.005;
+				float axisRotateSpeed = 0.004;
 
 				if(abs(vertPosition.x) > 5.0 ){
 					mat4 xAxisRotation = getXrotation(u_time*axisRotateSpeed);

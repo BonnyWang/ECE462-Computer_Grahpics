@@ -18,7 +18,7 @@ window.onload = function () {
 
 
 	// Set up 3D space
-	gl.clearColor(0.2, 0.2, 0.2, 1.0);
+	gl.clearColor(0.75, 0.75, 0.75, 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
 	gl.enable(gl.CULL_FACE);
@@ -34,9 +34,9 @@ window.onload = function () {
 	// Finished General Setup
 	///////////////////////////////////////////////////////////////////////////////////////
 
-
 	let boxIndices = drawCube(gl, canvas, program).boxIndices;
 	setUpScene(gl,canvas, program, boxIndices);
+
 };
 
 
@@ -193,7 +193,7 @@ function setUpScene(gl,canvas, program, boxIndices){
 
 		requestAnimationFrame(loop);
 	};
-	requestAnimationFrame(loop);
+	// requestAnimationFrame(loop);
 
 	var planeIndex = 0;
 	var direction = 1;
@@ -276,5 +276,28 @@ function setUpScene(gl,canvas, program, boxIndices){
 		}, false)
 		
 	}
+
+	// Ask user to specify a initial entropy for play
+	var intendedTurn = 0;
+	const inputField = document.getElementById("inputNumber");
+	const question = document.getElementById("question");
+
+	inputField.addEventListener("keyup", function(event) {
+		if (event.key === "Enter") {
+			intendedTurn = inputField.value;
+			for (let t = 0; t < intendedTurn; t++) {
+				subRotations[9*t + Math.floor(Math.random() * 9)] = Math.sign((Math.random()-0.5))*Math.PI/2;
+				turn = turn + 1;
+				gl.uniform1i(turnUniformLocation, turn);
+				gl.uniformMatrix3fv(subRotationUniformLocation, gl.FALSE,subRotations);
+			}
+
+			requestAnimationFrame(loop);
+
+			inputField.style.display = "none";
+			question.style.display = "none";
+		}
+	});
+
 
 }

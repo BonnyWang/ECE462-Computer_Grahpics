@@ -58,3 +58,28 @@ button:active{
   height: 100;
   position: fixed;
 }
+
+h2{
+  font-family: 'Courier New', Courier, monospace;
+  color: deeppink;
+  position: fixed;
+  top: 37.5%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin-left: auto;
+  margin-right: auto;
+  /* margin: auto; */
+}
+input{
+  font-family: 'Courier New', Courier, monospace;
+  color: deeppink;
+  font-size: 16px;
+  background: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin-left: auto;
+  margin-right: auto;
+  /* margin: auto; */
+}

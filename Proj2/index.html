@@ -1,37 +1,47 @@
 <canvas id="canvas"></canvas>
-<!-- vertex shader -->
+
 <script  id="vertex-shader-3d" type="x-shader/x-vertex">
 	attribute vec4 a_position;
+	attribute vec3 a_normal;
 	attribute vec2 a_texcoord;
 
-	uniform mat4 u_matrix;
+	uniform mat4 u_projection;
+	uniform mat4 u_view;
+	uniform mat4 u_world;
 
+	varying vec3 v_normal;
 	varying vec2 v_texcoord;
 
 	void main() {
-	// Multiply the position by the matrix.
-	gl_Position = u_matrix * a_position;
-
-	// Pass the texcoord to the fragment shader.
-	v_texcoord = a_texcoord;
+		gl_Position = u_projection * u_view * u_world * a_position;
+		v_normal = mat3(u_world) * a_normal;
+		v_texcoord = a_texcoord;
 	}
 </script>
-<!-- fragment shader -->
+
 <script  id="fragment-shader-3d" type="x-shader/x-fragment">
 	precision mediump float;
 
-	// Passed in from the vertex shader.
+	varying vec3 v_normal;
 	varying vec2 v_texcoord;
-
-	// The texture.
+  
+	uniform vec4 u_diffuse;
+	uniform vec3 u_lightDirection;
 	uniform sampler2D u_texture;
 
-	void main() {
-	gl_FragColor = texture2D(u_texture, v_texcoord);
+	
+  
+	void main () {
+	  vec3 normal = normalize(v_normal);
+	  float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
+	  
+	  vec4 textureColor = texture2D(u_texture, v_texcoord);
+	  gl_FragColor = vec4(textureColor.rgb * fakeLight, textureColor.a);
 	}
+
 </script>
 
 <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
 <script src="https://webglfundamentals.org/webgl/resources/m4.js"></script>
-<script src="./app.js"></script>
+<script src="app.js"></script>
 <link rel="stylesheet" href="style.css">

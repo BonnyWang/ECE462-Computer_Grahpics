@@ -116,7 +116,7 @@ async function main() {
   const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
 
   const cameraTarget = [0, 0, 0];
-  const cameraPosition = [0, 0, 4];
+  let cameraPosition = [0, 0, 4];
   const zNear = 0.1;
   const zFar = 50;
 
@@ -140,6 +140,39 @@ async function main() {
     gl.generateMipmap(gl.TEXTURE_2D);
   });
 
+  let movement = [0,0,0];
+  const speed = 0.01;
+
+  document.addEventListener('keydown', (event) => {
+    var name = event.key;
+    switch (name) {
+      case "ArrowUp":
+        movement[1] = speed;
+        break;
+      case "ArrowDown":
+        movement[1] = -speed;
+        break;
+      case "ArrowLeft":
+        movement[0] = -speed;
+        break;
+      case "ArrowRight":
+        movement[0] = speed;
+        break;
+    
+      default:
+        break;
+    }
+
+    console.log("Start Moving...");
+  }, false);
+
+  document.addEventListener('keyup', (event) => {
+    var name = event.key;
+    if(name == "ArrowUp" || name == "ArrowDown"||name == "ArrowLeft"||name == "ArrowRight" ){
+      movement = [0,0,0]; 
+    }
+  }, false);
+
 
   function degToRad(deg) {
     return deg * Math.PI / 180;
@@ -162,6 +195,8 @@ async function main() {
 
     const up = [0, 1, 0];
     // Compute the camera's matrix using look at.
+    cameraPosition[0] += movement[0];
+    cameraPosition[1] += movement[1];
     const camera = m4.lookAt(cameraPosition, cameraTarget, up);
 
     // Make a view matrix from the camera matrix.
@@ -182,7 +217,7 @@ async function main() {
 
     // calls gl.uniform
     webglUtils.setUniforms(programInfo, {
-      u_world: m4.yRotation(time),
+      u_world: m4.identity(),
       u_diffuse: [1, 1, 0.5, 1],
     });
 

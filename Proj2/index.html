@@ -8,12 +8,13 @@
 	uniform mat4 u_projection;
 	uniform mat4 u_view;
 	uniform mat4 u_world;
+	uniform mat4 u_translation;
 
 	varying vec3 v_normal;
 	varying vec2 v_texcoord;
 
 	void main() {
-		gl_Position = u_projection * u_view * u_world * a_position;
+		gl_Position = u_projection * u_view * u_world * (u_translation*a_position);
 		v_normal = mat3(u_world) * a_normal;
 		v_texcoord = a_texcoord;
 	}
@@ -28,6 +29,7 @@
 	uniform vec4 u_diffuse;
 	uniform vec3 u_lightDirection;
 	uniform sampler2D u_texture;
+	uniform float u_useimage;
 
 	
   
@@ -35,13 +37,18 @@
 	  vec3 normal = normalize(v_normal);
 	  float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
 	  
-	  vec4 textureColor = texture2D(u_texture, v_texcoord);
-	  gl_FragColor = vec4(textureColor.rgb * fakeLight, textureColor.a);
+	  if(u_useimage == 1.0){
+		vec4 textureColor = texture2D(u_texture, v_texcoord);
+		gl_FragColor = vec4(textureColor.rgb * fakeLight, textureColor.a);
+	  }else{
+		gl_FragColor = vec4(u_diffuse.rgb * fakeLight, u_diffuse.a);
+	  }
+
 	}
 
 </script>
 
 <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
 <script src="https://webglfundamentals.org/webgl/resources/m4.js"></script>
-<script src="app.js"></script>
+<script type="module" src="app.js"></script>
 <link rel="stylesheet" href="style.css">

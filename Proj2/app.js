@@ -1,96 +1,6 @@
 "use strict";
 
-// This function is based on https://webglfundamentals.org/webgl/lessons/webgl-load-obj.html
-function parseOBJ(text) {
- 
-  // because indices are base 1 so fill in the 0th data
-  const objPositions = [[0, 0, 0]];
-  const objTexcoords = [[0, 0]];
-  const objNormals = [[0, 0, 0]];
-
-  // same order as `f` indices
-  const objVertexData = [
-    objPositions,
-    objTexcoords,
-    objNormals,
-  ];
-
-  // same order as `f` indices
-  let webglVertexData = [
-    [],   // positions
-    [],   // texcoords
-    [],   // normals
-  ];
-
-  function newGeometry() {
-    // If there is an existing geometry and it's
-    // not empty then start a new one.
-    if (geometry && geometry.data.position.length) {
-      geometry = undefined;
-    }
-    setGeometry();
-  }
-
-  function addVertex(vert) {
-    const ptn = vert.split('/');
-    ptn.forEach((objIndexStr, i) => {
-      if (!objIndexStr) {
-        return;
-      }
-      const objIndex = parseInt(objIndexStr);
-      const index = objIndex + (objIndex >= 0 ? 0 : objVertexData[i].length);
-      webglVertexData[i].push(...objVertexData[i][index]);
-    });
-  }
-
-  const keywords = {
-    v(parts) {
-      objPositions.push(parts.map(parseFloat));
-    },
-    vn(parts) {
-      objNormals.push(parts.map(parseFloat));
-    },
-    vt(parts) {
-      // should check for missing v and extra w?
-      objTexcoords.push(parts.map(parseFloat));
-    },
-    f(parts) {
-      const numTriangles = parts.length - 2;
-      for (let tri = 0; tri < numTriangles; ++tri) {
-        addVertex(parts[0]);
-        addVertex(parts[tri + 1]);
-        addVertex(parts[tri + 2]);
-      }
-    },
-  };
-
-  const keywordRE = /(\w*)(?: )*(.*)/;
-  const lines = text.split('\n');
-  for (let lineNo = 0; lineNo < lines.length; ++lineNo) {
-    const line = lines[lineNo].trim();
-    if (line === '' || line.startsWith('#')) {
-      continue;
-    }
-    const m = keywordRE.exec(line);
-    if (!m) {
-      continue;
-    }
-    const [, keyword, unparsedArgs] = m;
-    const parts = line.split(/\s+/).slice(1);
-    const handler = keywords[keyword];
-    if (!handler) {
-      console.warn('unhandled keyword:', keyword);  // eslint-disable-line no-console
-      continue;
-    }
-    handler(parts, unparsedArgs);
-  }
-
-  return {
-    position: webglVertexData[0],
-    texcoord: webglVertexData[1],
-    normal: webglVertexData[2],
-  };
-}
+import {parseOBJ} from "./Scripts/objHandler.js";
 
 async function main() {
 
@@ -106,19 +16,30 @@ async function main() {
   // compiles and links the shaders, looks up attribute and uniform locations
   var programInfo = webglUtils.createProgramInfo(gl, ["vertex-shader-3d", "fragment-shader-3d"]);
 
-  const response = await fetch('./sphere.obj');  
-  const text = await response.text();
-  const data = parseOBJ(text);
+  const sphere = await fetch('./Models/sphere.obj');  
+  const sphereText = await sphere.text();
+  const sphereData = parseOBJ(sphereText);
+
+  const web = await fetch('./Models/web.obj');  
+  const webText = await web.text();
+  const webData = parseOBJ(webText);
 
   // Because the array is matched with the atributes, this function can  be used
   // **Need to make sure the names are matched exactly! "a_name" -> "name".
   // gl.createBuffer, gl.bindBuffer, gl.bufferData
-  const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
+  const sphereBufferInfo = webglUtils.createBufferInfoFromArrays(gl, sphereData);
+  const webBufferInfo = webglUtils.createBufferInfoFromArrays(gl, webData);
 
   const cameraTarget = [0, 0, 0];
   let cameraPosition = [0, 0, 4];
   const zNear = 0.1;
   const zFar = 50;
+
+  let sphereTranslation = m4.identity();
+  m4.translate(sphereTranslation, 1.5,0,0,sphereTranslation);
+  
+  let webTranslation = m4.identity();
+  m4.translate(webTranslation, -10,0,-10,webTranslation);
 
   var textureLocation = gl.getUniformLocation(programInfo.program, "u_texture");
   // Handle Texture
@@ -132,7 +53,7 @@ async function main() {
   
   // Asynchronously load an image
   var image = new Image();
-  image.src = "./cmbpic.png";
+  image.src = "./Models/cmbpic.png";
   image.addEventListener('load', function() {
     // Now that the image has loaded make copy it to the texture.
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -141,16 +62,16 @@ async function main() {
   });
 
   let movement = [0,0,0];
-  const speed = 0.01;
+  const speed = 0.02;
 
   document.addEventListener('keydown', (event) => {
     var name = event.key;
     switch (name) {
       case "ArrowUp":
-        movement[1] = speed;
+        movement[2] = -speed;
         break;
       case "ArrowDown":
-        movement[1] = -speed;
+        movement[2] = speed;
         break;
       case "ArrowLeft":
         movement[0] = -speed;
@@ -196,7 +117,9 @@ async function main() {
     const up = [0, 1, 0];
     // Compute the camera's matrix using look at.
     cameraPosition[0] += movement[0];
-    cameraPosition[1] += movement[1];
+    cameraPosition[2] += movement[2];
+    cameraTarget[0] += movement[0];
+    cameraTarget[2] += movement[2];
     const camera = m4.lookAt(cameraPosition, cameraTarget, up);
 
     // Make a view matrix from the camera matrix.
@@ -213,19 +136,34 @@ async function main() {
     webglUtils.setUniforms(programInfo, sharedUniforms);
 
     // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
-    webglUtils.setBuffersAndAttributes(gl, programInfo, bufferInfo);
 
-    // calls gl.uniform
+
+
+    // Set uniforms for sphere
     webglUtils.setUniforms(programInfo, {
       u_world: m4.identity(),
       u_diffuse: [1, 1, 0.5, 1],
+      u_translation: sphereTranslation,
+      u_useimage: 1.0
     });
 
     // For texture mapping
     gl.uniform1i(textureLocation, 0);
     
     // calls gl.drawArrays or gl.drawElements
-    webglUtils.drawBufferInfo(gl, bufferInfo);
+    webglUtils.setBuffersAndAttributes(gl, programInfo, sphereBufferInfo);
+    webglUtils.drawBufferInfo(gl, sphereBufferInfo);
+
+    webglUtils.setUniforms(programInfo, {
+      u_world: m4.identity(),
+      u_diffuse: [0.5, 0.5, 0.5, 1],
+      u_translation: webTranslation,
+      u_useimage: 0.0
+    });
+    
+    webglUtils.setBuffersAndAttributes(gl, programInfo, webBufferInfo);
+    gl.uniform1i(textureLocation, 0);
+    webglUtils.drawBufferInfo(gl, webBufferInfo);
 
 
     requestAnimationFrame(render);

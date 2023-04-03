@@ -9,3 +9,9 @@ body{
     overflow-x: hidden;
     margin: 0px;
 }
+
+h1{
+    position: fixed;
+    top: 0px;
+    color: white;
+}

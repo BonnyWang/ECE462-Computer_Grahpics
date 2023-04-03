@@ -1,0 +1,8 @@
+# Project 2 Lighting and Texture
+## Points
+### Can view from the insdie
+    by not culling and change the normal direction using gl_FrontFacing as a condition
+### Load Obj File
+    Interprate Obj file vector indics, texture coordinate, normal information
+
+### Colored Point Light

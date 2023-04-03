@@ -9,14 +9,36 @@
 	uniform mat4 u_view;
 	uniform mat4 u_world;
 	uniform mat4 u_translation;
+	uniform vec3 u_lightPosition;
+	uniform vec3 u_lightInsidePosition;
+	uniform vec3 u_viewPosition;
 
 	varying vec3 v_normal;
 	varying vec2 v_texcoord;
 
+	varying vec3 v_surfaceToLight;
+	varying vec3 v_surfaceToView;
+	varying vec3 v_insideToLight;
+
+
 	void main() {
-		gl_Position = u_projection * u_view * u_world * (u_translation*a_position);
+
+		vec4 current_position = u_translation*a_position;
+		gl_Position = u_projection * u_view * u_world * current_position;
 		v_normal = mat3(u_world) * a_normal;
 		v_texcoord = a_texcoord;
+
+		// To compute the point light
+		// compute the world position of the surface 
+		vec3 surfaceWorldPosition = (u_world *current_position).xyz;
+
+		// compute the vector of the surface to the light
+		// and pass it to the fragment shader
+		v_surfaceToLight = (u_world*vec4(u_lightPosition,1)).xyz - surfaceWorldPosition;
+
+		v_insideToLight = (u_world*vec4(u_lightInsidePosition,1)).xyz - surfaceWorldPosition;
+		
+		v_surfaceToView =  (u_world*vec4(u_viewPosition,1)).xyz - surfaceWorldPosition;
 	}
 </script>
 
@@ -29,12 +51,17 @@
 	uniform vec4 u_diffuse;
 	uniform vec3 u_lightDirection;
 	uniform sampler2D u_texture;
-	uniform float u_useimage;
+	uniform float u_useImage;
+	uniform float u_time;
+	uniform float u_turnUpInside;
 
-	
-  
+	varying vec3 v_surfaceToLight;
+	varying vec3 v_insideToLight;
+	varying vec3 v_surfaceToView;
+
 	void main () {
 		vec3 normal;
+		bool inside;
 		vec4 textureColor = texture2D(u_texture, v_texcoord);
 
 		normal = normalize(v_normal);
@@ -42,22 +69,63 @@
 		if(gl_FrontFacing){
 		}else{
 			normal = - normal;
-			
-		}
+			inside = true;
+		}	
 
+
+		// This is in case of transparent material
 		if(textureColor.a < 0.1){
 			discard;
 		}
 
-		float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
-		
-		if(u_useimage == 1.0){
+		float directionLight = dot(u_lightDirection, normal) * .5 + .5;
 
-			gl_FragColor = vec4(textureColor.rgb* fakeLight, 1);
-		}else{
-			gl_FragColor = vec4(u_diffuse.rgb * fakeLight, u_diffuse.a);
+		vec3 surfaceToLightDirection = normalize(v_surfaceToLight);
+		vec3 surfaceToViewDirection = normalize(v_surfaceToView);
+  		vec3 halfVector = normalize(surfaceToLightDirection + surfaceToViewDirection);
+		float specular = dot(normal, halfVector);
+		
+
+		float pointLight = dot(normal, surfaceToLightDirection);
+		// since this lgith is red we need to clip it to 0 otherwise it will have negative effect on faces not facing the light
+		if(pointLight < 0.0){
+			pointLight = 0.0;
+		}
+		if(specular < 0.0){
+			specular = 0.0;
+		}
+		
+		vec3 insideToLightDirection = normalize(v_insideToLight);
+		float insidePointLight = dot(normal, insideToLightDirection);
+		
+
+		float allLight = pointLight + directionLight;
+
+		vec4 shadedColor;
+		
+		if(u_useImage == 1.0){
+
+			shadedColor = vec4(textureColor.rgb, 1);
+		}else{	
+			shadedColor = vec4(u_diffuse.rgb , u_diffuse.a);
 		}
 
+		// The point light will be in red
+		if(!inside){
+			shadedColor.gb *= (directionLight);
+			shadedColor.r *= (directionLight + pointLight);
+			shadedColor.r += pow(specular,2.0);
+		}else{
+
+			if(u_turnUpInside == 1.0){
+				shadedColor.rgb *=  insidePointLight*(1.0 + abs(cos(u_time/100.0)));
+			}else{
+				shadedColor = vec4(1.0,0.0,0.0,1.0);
+			}
+			
+		}
+		
+		gl_FragColor = shadedColor;
 	}
 
 </script>
@@ -66,3 +134,7 @@
 <script src="https://webglfundamentals.org/webgl/resources/m4.js"></script>
 <script type="module" src="app.js"></script>
 <link rel="stylesheet" href="style.css">
+
+<h1>
+	Move inside the CMB sphere and Press F to see!
+</h1>

@@ -37,10 +37,10 @@ async function main() {
 
 
   let sphereTranslation = m4.identity();
-  m4.translate(sphereTranslation, 1.5,0,0,sphereTranslation);
+  m4.translate(sphereTranslation, 2,0,0,sphereTranslation);
   
   let webTranslation = m4.identity();
-  m4.translate(webTranslation, -10,0,0,webTranslation);
+  m4.translate(webTranslation, -5,0,0,webTranslation);
 
   var textureLocation = gl.getUniformLocation(programInfo.program, "u_texture");
   // Handle Texture
@@ -65,6 +65,9 @@ async function main() {
   let movement = [0,0,0];
   const speed = 0.02;
 
+  // For inside light control
+  let turnUpInside = 0.0;
+  
   document.addEventListener('keydown', (event) => {
     var name = event.key;
     switch (name) {
@@ -80,12 +83,19 @@ async function main() {
       case "ArrowRight":
         movement[0] = speed;
         break;
-    
+      case "f":
+        if(turnUpInside == 1.0){
+          turnUpInside = 0.0;
+        }else{
+          turnUpInside = 1.0;
+        }
+        
+        break;
       default:
         break;
     }
 
-    console.log("Start Moving...");
+    console.log(NavigationPreloadManager);
   }, false);
 
   document.addEventListener('keyup', (event) => {
@@ -129,10 +139,15 @@ async function main() {
 	canvas.addEventListener("mousemove", mouseMove, false);
 
 
+
+
   function degToRad(deg) {
     return deg * Math.PI / 180;
   }
 
+  let d = new Date();
+
+  let cameraPosition  = [0,0,4];
 
   function render(time) {
     time *= 0.001;  // convert to seconds
@@ -151,6 +166,9 @@ async function main() {
     const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     const projection = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
     
+    cameraPosition[0] += movement[0];
+    cameraPosition[1] += movement[1];
+    cameraPosition[2] += movement[2];
     m4.translate(camera, movement[0],movement[1], movement[2], camera);
     // m4.xRotate(camera, -dY, camera);
     m4.yRotate(camera, dX, camera);
@@ -171,14 +189,21 @@ async function main() {
     webglUtils.setUniforms(programInfo, sharedUniforms);
 
     // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
+    
 
-
-
+    let nowD = new Date();
+    console.log(cameraPosition);
+    // console.log((nowD.getTime() - d.getTime()));
     // Set uniforms for sphere
     webglUtils.setUniforms(programInfo, {
-      u_diffuse: [1, 1, 0.5, 1],
+      u_diffuse: [1, 1, 1, 1],
+      u_lightPosition:[0,0,0],
+      u_viewPosition: cameraPosition,
+      u_lightInsidePosition:[2.0,0.0,0.0],
       u_translation: sphereTranslation,
-      u_useimage: 1.0
+      u_useImage: 1.0,
+      u_time: (nowD.getTime() - d.getTime()),
+      u_turnUpInside: turnUpInside
     });
 
     // For texture mapping
@@ -189,9 +214,8 @@ async function main() {
     webglUtils.drawBufferInfo(gl, sphereBufferInfo);
 
     webglUtils.setUniforms(programInfo, {
-      u_diffuse: [0.5, 0.5, 0.5, 1],
       u_translation: webTranslation,
-      u_useimage: 0.0
+      u_useImage: 0.0
     });
     
     webglUtils.setBuffersAndAttributes(gl, programInfo, webBufferInfo);

@@ -6,3 +6,5 @@
     Interprate Obj file vector indics, texture coordinate, normal information
 
 ### Colored Point Light
+    Need to handle negative issue
+### Added Fog 

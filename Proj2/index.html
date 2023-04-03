@@ -20,6 +20,8 @@
 	varying vec3 v_surfaceToView;
 	varying vec3 v_insideToLight;
 
+	varying float v_fogDepth;
+
 
 	void main() {
 
@@ -39,6 +41,8 @@
 		v_insideToLight = (u_world*vec4(u_lightInsidePosition,1)).xyz - surfaceWorldPosition;
 		
 		v_surfaceToView =  (u_world*vec4(u_viewPosition,1)).xyz - surfaceWorldPosition;
+
+		v_fogDepth = -(u_view * u_world * a_position).z;
 	}
 </script>
 
@@ -58,6 +62,8 @@
 	varying vec3 v_surfaceToLight;
 	varying vec3 v_insideToLight;
 	varying vec3 v_surfaceToView;
+	varying float v_fogDepth;
+
 
 	void main () {
 		vec3 normal;
@@ -125,7 +131,9 @@
 			
 		}
 		
-		gl_FragColor = shadedColor;
+		float fogAmount = smoothstep(2.0, 6.0, v_fogDepth);
+
+		gl_FragColor =  mix(shadedColor, vec4(0.0,0.0,0.0,1.0), fogAmount);
 	}
 
 </script>

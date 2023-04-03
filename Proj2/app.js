@@ -29,17 +29,18 @@ async function main() {
   // gl.createBuffer, gl.bindBuffer, gl.bufferData
   const sphereBufferInfo = webglUtils.createBufferInfoFromArrays(gl, sphereData);
   const webBufferInfo = webglUtils.createBufferInfoFromArrays(gl, webData);
+  const camera = m4.identity(); 
+  m4.translate(camera, 0,0,4,camera);
 
-  const cameraTarget = [0, 0, 0];
-  let cameraPosition = [0, 0, 4];
   const zNear = 0.1;
   const zFar = 50;
+
 
   let sphereTranslation = m4.identity();
   m4.translate(sphereTranslation, 1.5,0,0,sphereTranslation);
   
   let webTranslation = m4.identity();
-  m4.translate(webTranslation, -10,0,-10,webTranslation);
+  m4.translate(webTranslation, -10,0,0,webTranslation);
 
   var textureLocation = gl.getUniformLocation(programInfo.program, "u_texture");
   // Handle Texture
@@ -94,17 +95,53 @@ async function main() {
     }
   }, false);
 
+  // Handle Mouse Movement
+	// https://www.tutorialspoint.com/webgl/webgl_interactive_cube.htm
+	var drag = false;
+	var old_x, old_y;
+	var dX = 0, dY = 0;
+
+
+	var mouseDown = function(e) {
+	   drag = true;
+	   old_x = e.pageX, old_y = e.pageY;
+	   e.preventDefault();
+
+	   return false;
+	};
+
+	var mouseUp = function(e){
+	   drag = false;
+     dX = 0;
+     dY = 0;
+	};
+
+	var mouseMove = function(e) {
+	   if (!drag) return false;
+	   dX = (e.pageX-old_x)*2*Math.PI/canvas.width,
+	   old_x = e.pageX, old_y = e.pageY;
+	   e.preventDefault();
+	};
+
+	canvas.addEventListener("mousedown", mouseDown, false);
+	canvas.addEventListener("mouseup", mouseUp, false);
+	canvas.addEventListener("mouseout", mouseUp, false);
+	canvas.addEventListener("mousemove", mouseMove, false);
+
 
   function degToRad(deg) {
     return deg * Math.PI / 180;
   }
+
 
   function render(time) {
     time *= 0.001;  // convert to seconds
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
+    
+    // Turn off Cull Face so that sphere can be seen from the inside 
+    // gl.enable(gl.CULL_FACE);
 
     gl.clearColor(0, 0, 0, 1)
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -113,19 +150,17 @@ async function main() {
     const fieldOfViewRadians = degToRad(60);
     const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     const projection = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+    
+    m4.translate(camera, movement[0],movement[1], movement[2], camera);
+    // m4.xRotate(camera, -dY, camera);
+    m4.yRotate(camera, dX, camera);
 
-    const up = [0, 1, 0];
-    // Compute the camera's matrix using look at.
-    cameraPosition[0] += movement[0];
-    cameraPosition[2] += movement[2];
-    cameraTarget[0] += movement[0];
-    cameraTarget[2] += movement[2];
-    const camera = m4.lookAt(cameraPosition, cameraTarget, up);
-
-    // Make a view matrix from the camera matrix.
     const view = m4.inverse(camera);
+    let world = m4.identity()
+
 
     const sharedUniforms = {
+      u_world: world,
       u_lightDirection: m4.normalize([-1, 3, 5]),
       u_view: view,
       u_projection: projection,
@@ -141,7 +176,6 @@ async function main() {
 
     // Set uniforms for sphere
     webglUtils.setUniforms(programInfo, {
-      u_world: m4.identity(),
       u_diffuse: [1, 1, 0.5, 1],
       u_translation: sphereTranslation,
       u_useimage: 1.0
@@ -155,7 +189,6 @@ async function main() {
     webglUtils.drawBufferInfo(gl, sphereBufferInfo);
 
     webglUtils.setUniforms(programInfo, {
-      u_world: m4.identity(),
       u_diffuse: [0.5, 0.5, 0.5, 1],
       u_translation: webTranslation,
       u_useimage: 0.0

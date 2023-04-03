@@ -34,15 +34,29 @@
 	
   
 	void main () {
-	  vec3 normal = normalize(v_normal);
-	  float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
-	  
-	  if(u_useimage == 1.0){
+		vec3 normal;
 		vec4 textureColor = texture2D(u_texture, v_texcoord);
-		gl_FragColor = vec4(textureColor.rgb * fakeLight, textureColor.a);
-	  }else{
-		gl_FragColor = vec4(u_diffuse.rgb * fakeLight, u_diffuse.a);
-	  }
+
+		normal = normalize(v_normal);
+
+		if(gl_FrontFacing){
+		}else{
+			normal = - normal;
+			
+		}
+
+		if(textureColor.a < 0.1){
+			discard;
+		}
+
+		float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
+		
+		if(u_useimage == 1.0){
+
+			gl_FragColor = vec4(textureColor.rgb* fakeLight, 1);
+		}else{
+			gl_FragColor = vec4(u_diffuse.rgb * fakeLight, u_diffuse.a);
+		}
 
 	}
 
